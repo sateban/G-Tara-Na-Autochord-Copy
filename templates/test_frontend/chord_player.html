@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord Player</title>
+</head>
+<body>
+    <h1>Select a chord to play</h1>
+    <form id="mp3Form">
+        <select id="mp3Select">
+            {% for file in mp3_files %}
+                <option value="{{ file }}">{{ file }}</option>
+            {% endfor %}
+        </select>
+        <button type="button" onclick="playMP3()">Play</button>
+    </form>
+    <audio id="audioPlayer" controls>
+        <source id="audioSource" src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        function playMP3() {
+            var select = document.getElementById("mp3Select");
+            var selectedFile = select.options[select.selectedIndex].value;
+            var audioSource = document.getElementById("audioSource");
+            audioSource.src = "/test_frontend/player/play/" + selectedFile;
+            var audioPlayer = document.getElementById("audioPlayer");
+            audioPlayer.load();
+            audioPlayer.play();
+        }
+    </script>
+</body>
+</html>

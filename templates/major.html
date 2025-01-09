@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title> Major Chords </title>
+    <style>
+        .section { 
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+    <div class="wrapper">
+        <h1> Major Chords </h1>
+        <div id="letters">
+            <button onclick="showSection('A')">A</button>
+            <button onclick="showSection('B')">B</button>
+            <button onclick="showSection('C')">C</button>
+            <button onclick="showSection('D')">D</button>
+            <button onclick="showSection('E')">E</button>
+            <button onclick="showSection('F')">F</button>
+            <button onclick="showSection('G')">G</button>
+        </div>
+
+        <div id="sectionsContainer"></div>
+
+    </div>
+
+    <script src="./static/scripts/globalHeader.js"></script>
+    <script src="./static/scripts/chordplayer.js"></script>
+    <script src="./static/scripts/togglemic.js"></script>
+    <script src="./static/scripts/section.js"></script>
+    <script src="./static/scripts/chordDetection.js"></script>
+    <script src="./static/scripts/generateSections.js"></script>
+</body>
+</html>

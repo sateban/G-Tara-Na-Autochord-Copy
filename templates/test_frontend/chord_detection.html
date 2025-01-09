@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord Detection</title>
+</head>
+<body>
+    <h1>Chord Detection</h1>
+    <button id="toggleButton">Record</button>
+    <p id="status"></p>
+    <p id="chords"></p>
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        document.getElementById('toggleButton').onclick = () => {
+            if (!isRecording) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorder.start();
+                        document.getElementById('status').innerText = 'Recording...';
+                        document.getElementById('toggleButton').innerText = 'Stop';
+                        isRecording = true;
+
+                        mediaRecorder.ondataavailable = event => {
+                            audioChunks.push(event.data);
+                        };
+
+                        mediaRecorder.onstop = () => {
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                            const formData = new FormData();
+                            formData.append('file', audioBlob, 'recording.wav');
+
+                            fetch('/api/detect', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                document.getElementById('status').innerText = 'Recording stopped.';
+                                document.getElementById('chords').innerText = 'Chords: ' + data.chords.join(', ');
+                            })
+                            .catch(error => {
+                                document.getElementById('status').innerText = 'Error: ' + error;
+                            });
+
+                            audioChunks = [];
+                        };
+                    });
+            } else {
+                mediaRecorder.stop();
+                document.getElementById('toggleButton').innerText = 'Record';
+                document.getElementById('status').innerText = 'Processing...';
+                isRecording = false;
+            }
+        };
+    </script>
+</body>
+</html>

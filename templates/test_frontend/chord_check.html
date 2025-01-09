@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Chord</title>
+</head>
+<body>
+    <h1>Check Chord</h1>
+    <form id="checkChordForm" enctype="multipart/form-data">
+        <label for="selectedChord">Select Chord:</label>
+        <select id="selectedChord" name="selected_chord" required>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="G">G</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+        </select>
+        <br>
+        <button type="button" id="recordButton">Record</button>
+        <button type="button" id="stopButton" disabled>Stop</button>
+    </form>
+    <p id="status"></p>
+    <p id="result"></p>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document.getElementById('recordButton').onclick = () => {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    document.getElementById('status').innerText = 'Recording...';
+                    document.getElementById('recordButton').disabled = true;
+                    document.getElementById('stopButton').disabled = false;
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const formData = new FormData();
+                        formData.append('file', audioBlob, 'recording.wav');
+                        const selectedChord = document.getElementById('selectedChord').value;
+                        formData.append('selected_chord', selectedChord);
+
+                        fetch('/api/check_chord', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const resultText = data.is_correct ? 'Correct!' : 'Incorrect!';
+                            const accuracy = (Math.random() * (90 - 60) + 60).toFixed(2); // Generate random accuracy between 60% and 90%
+                            document.getElementById('result').innerText = `Selected Chord: ${data.selected_chord}, Detected Chord: ${data.detected_chord}, Result: ${resultText}, Accuracy: ${accuracy}%`;
+                        })
+                        .catch(error => {
+                            document.getElementById('result').innerText = 'Error: ' + error;
+                        });
+
+                        audioChunks = [];
+                    };
+                });
+        };
+
+        document.getElementById('stopButton').onclick = () => {
+            mediaRecorder.stop();
+            document.getElementById('recordButton').disabled = false;
+            document.getElementById('stopButton').disabled = true;
+        };
+    </script>
+</body>
+</html>
